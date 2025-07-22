@@ -63,18 +63,12 @@ class _HomePageState extends State<HomePage> {
         onTap: (index) => setState(() => _selectedIndex = index),
         items: [
           for (final tab in _tabs)
-            BottomNavigationBarItem(
-              label: tab.label,
-              icon: Icon(tab.icon),
-            ),
+            BottomNavigationBarItem(label: tab.label, icon: Icon(tab.icon)),
         ],
       );
     }
 
-    return Scaffold(
-      body: body,
-      bottomNavigationBar: bottomNavigationBar,
-    );
+    return Scaffold(body: body, bottomNavigationBar: bottomNavigationBar);
   }
 }
 

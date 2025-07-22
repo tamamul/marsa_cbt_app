@@ -19,14 +19,14 @@ class InputField extends StatefulWidget {
     TextInputAction textInputAction = TextInputAction.next,
     Key? key,
   }) : this(
-          key: key,
-          controller: controller,
-          label: label,
-          textInputAction: textInputAction,
-          keyboardType: TextInputType.name,
-          autofillHints: const [AutofillHints.name],
-          validator: Validators.required,
-        );
+         key: key,
+         controller: controller,
+         label: label,
+         textInputAction: textInputAction,
+         keyboardType: TextInputType.name,
+         autofillHints: const [AutofillHints.name],
+         validator: Validators.required,
+       );
 
   const InputField.email({
     required TextEditingController controller,
@@ -34,14 +34,14 @@ class InputField extends StatefulWidget {
     TextInputAction textInputAction = TextInputAction.next,
     Key? key,
   }) : this(
-          key: key,
-          controller: controller,
-          label: label,
-          textInputAction: textInputAction,
-          keyboardType: TextInputType.emailAddress,
-          autofillHints: const [AutofillHints.email],
-          validator: Validators.email,
-        );
+         key: key,
+         controller: controller,
+         label: label,
+         textInputAction: textInputAction,
+         keyboardType: TextInputType.emailAddress,
+         autofillHints: const [AutofillHints.email],
+         validator: Validators.email,
+       );
 
   const InputField.password({
     required TextEditingController controller,
@@ -50,15 +50,15 @@ class InputField extends StatefulWidget {
     ValueChanged<String>? onFieldSubmitted,
     Key? key,
   }) : this(
-          key: key,
-          controller: controller,
-          label: label,
-          textInputAction: textInputAction,
-          keyboardType: TextInputType.visiblePassword,
-          autofillHints: const [AutofillHints.password],
-          validator: Validators.password,
-          onFieldSubmitted: onFieldSubmitted,
-        );
+         key: key,
+         controller: controller,
+         label: label,
+         textInputAction: textInputAction,
+         keyboardType: TextInputType.visiblePassword,
+         autofillHints: const [AutofillHints.password],
+         validator: Validators.password,
+         onFieldSubmitted: onFieldSubmitted,
+       );
 
   final TextEditingController controller;
   final String label;

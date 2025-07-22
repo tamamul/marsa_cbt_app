@@ -5,8 +5,7 @@ enum AppRoute {
   splash('/'),
   home('/home'),
   settings('/settings'),
-  auth('/auth'),
-  ;
+  auth('/auth');
 
   const AppRoute(this.path);
 

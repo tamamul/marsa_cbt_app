@@ -48,9 +48,7 @@ class _AuthPageState extends State<AuthPage> {
                           style: context.textTheme.titleLarge,
                         ),
                         const SizedBox(height: 16),
-                        InputField.email(
-                          controller: _emailController,
-                        ),
+                        InputField.email(controller: _emailController),
                         const SizedBox(height: 16),
                         InputField.password(
                           controller: _passwordController,
@@ -85,10 +83,7 @@ class _AuthPageState extends State<AuthPage> {
 
   void _onAuthState(BuildContext context, AuthState state) {
     if (state is AuthFailure) {
-      context.showSnackBarMessage(
-        state.errorMessage,
-        isError: true,
-      );
+      context.showSnackBarMessage(state.errorMessage, isError: true);
       return;
     }
 
@@ -111,14 +106,14 @@ class _AuthPageState extends State<AuthPage> {
 
     if (_isSignUp) {
       context.read<AuthCubit>().signUpWithEmailAndPassword(
-            email: email,
-            password: password,
-          );
+        email: email,
+        password: password,
+      );
     } else {
       context.read<AuthCubit>().signInWithEmailAndPassword(
-            email: email,
-            password: password,
-          );
+        email: email,
+        password: password,
+      );
     }
   }
 }

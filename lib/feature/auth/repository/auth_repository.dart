@@ -2,9 +2,7 @@ import 'package:scalable_flutter_app_starter/feature/user/model/user.dart';
 import 'package:scalable_flutter_app_starter/feature/user/provider/user_mock_provider.dart';
 
 class AuthRepository {
-  const AuthRepository({
-    required this.userProvider,
-  });
+  const AuthRepository({required this.userProvider});
 
   final UserMockProvider userProvider;
 

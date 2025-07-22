@@ -10,9 +10,7 @@ class UserInitial extends UserState {
 }
 
 class UserLoaded extends UserState {
-  const UserLoaded({
-    required this.user,
-  });
+  const UserLoaded({required this.user});
 
   final User? user;
 }

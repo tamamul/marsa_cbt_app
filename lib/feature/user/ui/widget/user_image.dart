@@ -13,9 +13,6 @@ class UserImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return UrlImage.circle(
-      url: url,
-      size: size,
-    );
+    return UrlImage.circle(url: url, size: size);
   }
 }

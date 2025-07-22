@@ -8,10 +8,8 @@ import 'package:scalable_flutter_app_starter/feature/user/repository/user_reposi
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> with BlocLoggy {
-  AuthCubit({
-    required this.authRepository,
-    required this.userRepository,
-  }) : super(const AuthInitial());
+  AuthCubit({required this.authRepository, required this.userRepository})
+    : super(const AuthInitial());
 
   final AuthRepository authRepository;
   final UserRepository userRepository;

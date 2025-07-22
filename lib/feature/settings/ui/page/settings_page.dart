@@ -10,9 +10,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -37,10 +35,7 @@ class SettingsPage extends StatelessWidget {
             onTap: () => Dialogs.showLogOutConfirmationDialog(context),
           ),
           const Spacer(),
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: AppVersion(),
-          ),
+          const Padding(padding: EdgeInsets.all(16), child: AppVersion()),
         ],
       ),
     );

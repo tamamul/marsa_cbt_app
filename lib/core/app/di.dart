@@ -6,21 +6,14 @@ import 'package:scalable_flutter_app_starter/feature/user/provider/user_mock_pro
 import 'package:scalable_flutter_app_starter/feature/user/repository/user_repository.dart';
 
 class DI extends StatelessWidget {
-  const DI({
-    required this.child,
-    super.key,
-  });
+  const DI({required this.child, super.key});
 
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return _ProviderDI(
-      child: _RepositoryDI(
-        child: _BlocDI(
-          child: child,
-        ),
-      ),
+      child: _RepositoryDI(child: _BlocDI(child: child)),
     );
   }
 }
@@ -53,14 +46,12 @@ class _RepositoryDI extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<UserRepository>(
-          create: (context) => UserRepository(
-            userProvider: context.read<UserMockProvider>(),
-          ),
+          create: (context) =>
+              UserRepository(userProvider: context.read<UserMockProvider>()),
         ),
         RepositoryProvider<AuthRepository>(
-          create: (context) => AuthRepository(
-            userProvider: context.read<UserMockProvider>(),
-          ),
+          create: (context) =>
+              AuthRepository(userProvider: context.read<UserMockProvider>()),
         ),
       ],
       child: child,
@@ -78,9 +69,8 @@ class _BlocDI extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<UserCubit>(
-          create: (context) => UserCubit(
-            userRepository: context.read<UserRepository>(),
-          ),
+          create: (context) =>
+              UserCubit(userRepository: context.read<UserRepository>()),
         ),
       ],
       child: child,

@@ -14,7 +14,8 @@ sealed class Dialogs {
     final confirmed = await _showConfirmationDialog(
       context,
       title: 'Delete Account',
-      message: 'Are you sure you want to delete your account forever? '
+      message:
+          'Are you sure you want to delete your account forever? '
           'It can take up to 30 days. This cannot be undone.',
       confirmText: 'Delete My Account',
       isDestructive: true,
@@ -26,9 +27,7 @@ sealed class Dialogs {
     }
   }
 
-  static Future<void> showLogOutConfirmationDialog(
-    BuildContext context,
-  ) async {
+  static Future<void> showLogOutConfirmationDialog(BuildContext context) async {
     final confirmed = await _showConfirmationDialog(
       context,
       title: 'Sign Out',

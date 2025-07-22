@@ -21,10 +21,7 @@ class AppVersion extends StatelessWidget {
 
         return Column(
           children: [
-            Text(
-              data.appName,
-              style: theme.textTheme.titleMedium,
-            ),
+            Text(data.appName, style: theme.textTheme.titleMedium),
             const SizedBox(height: 2),
             Text(
               'v${data.version} (${data.buildNumber})',

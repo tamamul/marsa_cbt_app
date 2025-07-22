@@ -9,9 +9,7 @@ import 'package:scalable_flutter_app_starter/feature/user/repository/user_reposi
 part 'user_state.dart';
 
 class UserCubit extends Cubit<UserState> with BlocLoggy {
-  UserCubit({
-    required this.userRepository,
-  }) : super(const UserInitial()) {
+  UserCubit({required this.userRepository}) : super(const UserInitial()) {
     _load();
   }
 

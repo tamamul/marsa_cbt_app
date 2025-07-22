@@ -14,10 +14,6 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(label),
-      onTap: onTap,
-    );
+    return ListTile(leading: Icon(icon), title: Text(label), onTap: onTap);
   }
 }
