@@ -28,8 +28,8 @@ class AppVersion extends StatelessWidget {
               style: theme.textTheme.bodySmall,
             ),
             const LabeledTextButton(
-              label: 'Get the PRO version',
-              action: 'GET IT NOW',
+              label: 'Get the full version',
+              action: 'HERE',
               onTap: Urls.showBuyPro,
             ),
           ],
