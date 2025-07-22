@@ -47,19 +47,23 @@ Always keep up to date:
 
 ## About the Author
 
-I'm Milos Jokic and I:
+Hey, I'm Milos Jokic 👋
 
-- built my first mobile app in 2007
-- grew my apps to 214k users and $106,140 revenue.
-- built apps for 10 Toptal clients.
+My short story:
 
-And now I run a 6-figure devs agency where we launch MVPs in 4 weeks using Flutter & Firebase.
+- Building apps since 2011
+- Raised VC for my startup
+- 8x Toptal Flutter Tech Lead
+- Founder of $100K+ app portfolio
+- Head of Engineering for US startup
+- Ran an app dev & design agency for 1.5 years and made $500K
 
 You can find me on:
 
 - [LinkedIn](https://www.linkedin.com/in/milos-jokic/)
 - [Twitter](https://twitter.com/miloshjokic)
-- [Newsletter](http://flutterpreneur.com/)
+- [Personal Website](http://milosjokic.com/)
+
 
 # Features
 
@@ -223,7 +227,7 @@ If you don't need a feature:
 ## What if I want more?
 
 If you want Firebase integration, notifications, in-app purchases and more,
-[get the Pro version here](https://scalableflutterapp.com/):
+[get the Pro version here](https://scalableflutterapp.com/).
 
 # Resources
 
@@ -233,17 +237,12 @@ Cool illustrations that match your app's colors (free): [unDraw](https://undraw.
 
 CI/CD for mobile apps (free & paid): [Codemagic](https://codemagic.io/)
 
-Want me to launch your MVP in 4 weeks (premium)?
-[Go to App Launch Program](https://applaunchprogram.com/)
-
-Need a Flutter Expert (paid)? [Go to Flutter Devs Board](https://flutterdevsboard.com/)
-
 # Feedback
 
 Found an issue or want to request a feature? Open
 an [issue](https://github.com/Gradoid/scalable_flutter_app_starter/issues)
 
 Have a question? Ask me on [LinkedIn](https://www.linkedin.com/in/milos-jokic/)
-or [Twitter](https://twitter.com/miloshjokic).
+or [Twitter](https://twitter.com/miloshjokic). Or send me an email at milos@gradoid.com
 
 Enjoying Scalable Flutter App? [Leave a testimonial](https://testimonial.to/scalable-flutter-app)
