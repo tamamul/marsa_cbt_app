@@ -2,38 +2,45 @@ name: Build APK
 
 on:
   push:
-    branches: [ "*" ]
+    branches:
+      - main
+      - develop
   pull_request:
-    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: '17'
-          distribution: 'temurin'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
-          channel: 'stable'
+          flutter-version: '3.32.8'
+          channel: stable
           cache: true
 
-      - name: Install dependencies
+      - name: Flutter Version
+        run: flutter --version
+
+      - name: Dart Version
+        run: dart --version
+
+      - name: Get Dependencies
         run: flutter pub get
 
-      - name: Analyze
+      - name: Analyze Project
         run: flutter analyze --no-fatal-infos
 
-      - name: Build APK Debug
+      - name: Build Debug APK
         run: flutter build apk --debug
 
       - name: Upload Debug APK
@@ -42,3 +49,15 @@ jobs:
           name: marsa-cbt-debug-${{ github.run_number }}
           path: build/app/outputs/flutter-apk/app-debug.apk
           retention-days: 30
+
+      - name: Build Release APK
+        if: github.ref == 'refs/heads/main'
+        run: flutter build apk --release
+
+      - name: Upload Release APK
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: marsa-cbt-release-${{ github.run_number }}
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 90
