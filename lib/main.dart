@@ -1,33 +1,30 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:loggy/loggy.dart';
-import 'package:scalable_flutter_app_starter/core/app/app.dart';
+import 'core/api/api_client.dart';
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  _initLoggy();
-  _initGoogleFonts();
-
-  runApp(const ScalableFlutterApp());
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  ApiClient.init();
+  runApp(const MarsaCbtApp());
 }
 
-void _initLoggy() {
-  Loggy.initLoggy(
-    logOptions: const LogOptions(
-      LogLevel.all,
-      stackTraceLevel: LogLevel.warning,
-    ),
-    logPrinter: const PrettyPrinter(),
-  );
-}
+class MarsaCbtApp extends StatelessWidget {
+  const MarsaCbtApp({super.key});
 
-void _initGoogleFonts() {
-  GoogleFonts.config.allowRuntimeFetching = false;
-
-  LicenseRegistry.addLicense(() async* {
-    final license = await rootBundle.loadString('google_fonts/OFL.txt');
-    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
-  });
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'Marsa CBT',
+      theme: AppTheme.dark,
+      routerConfig: AppRouter.router,
+      debugShowCheckedModeBanner: false,
+    );
+  }
 }
