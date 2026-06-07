@@ -74,18 +74,31 @@ class ExamError extends ExamState {
   ExamError(this.message);
 }
 
+class ExamTicked extends ExamEvent {}
+
+class ExamQuestionChanged extends ExamEvent {
+  final int index;
+
+  ExamQuestionChanged(this.index);
+}
+
 // Bloc
 class ExamBloc extends Bloc<ExamEvent, ExamState> {
   final ExamRepository _repo;
 
   ExamBloc(this._repo) : super(ExamInitial()) {
-    on<ExamListRequested>(_onListRequested);
-    on<ExamStartRequested>(_onStartRequested);
-    on<ExamAnswerSaved>(_onAnswerSaved);
-    on<ExamSubmitRequested>(_onSubmitRequested);
-    on<ExamHeartbeatSent>(_onHeartbeat);
-    on<ExamViolationReported>(_onViolation);
-  }
+  on<ExamListRequested>(_onListRequested);
+  on<ExamStartRequested>(_onStartRequested);
+  on<ExamAnswerSaved>(_onAnswerSaved);
+  on<ExamSubmitRequested>(_onSubmitRequested);
+  on<ExamHeartbeatSent>(_onHeartbeat);
+  on<ExamViolationReported>(_onViolation);
+
+
+
+  on<ExamTicked>(_onTicked);
+  on<ExamQuestionChanged>(_onQuestionChanged);
+}
 
   Future<void> _onListRequested(
     ExamListRequested event,
@@ -171,6 +184,44 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
   ) async {
     final current = state;
     if (current is! ExamSessionActive) return;
-    await _repo.reportViolation(current.session.sessionToken, event.type);
+
+    await _repo.reportViolation(
+      current.session.sessionToken,
+      event.type,
+    );
+  }
+
+  Future<void> _onTicked(
+    ExamTicked event,
+    Emitter<ExamState> emit,
+  ) async {
+    final current = state;
+
+    if (current is! ExamSessionActive) {
+      return;
+    }
+
+    emit(
+      current.copyWith(
+        remainingSeconds: current.remainingSeconds - 1,
+      ),
+    );
+  }
+
+  Future<void> _onQuestionChanged(
+    ExamQuestionChanged event,
+    Emitter<ExamState> emit,
+  ) async {
+    final current = state;
+
+    if (current is! ExamSessionActive) {
+      return;
+    }
+
+    emit(
+      current.copyWith(
+        currentIndex: event.index,
+      ),
+    );
   }
 }
