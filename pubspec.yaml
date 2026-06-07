@@ -10,8 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # State management
-  # flutter_bloc: ^9.1.0
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.5
 
   equatable: ^2.0.5
 
@@ -39,10 +39,13 @@ dependencies:
   # iOS
   cupertino_icons: ^1.0.2
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
   flutter_lints: ^5.0.0
+
   # bloc_test: ^9.1.7
 
 flutter:
