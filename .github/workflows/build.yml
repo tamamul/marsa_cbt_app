@@ -2,62 +2,53 @@ name: Build APK
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [ "*" ]
   pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
           java-version: '17'
+          distribution: 'temurin'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.8'
-          channel: stable
+          flutter-version: '3.27.0'
+          channel: 'stable'
           cache: true
 
-      - name: Flutter Version
-        run: flutter --version
-
-      - name: Dart Version
-        run: dart --version
-
-      - name: Get Dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze Project
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
 
-      - name: Build Debug APK
-        run: flutter build apk --debug
+      - name: Build APK arm64-v8a (flagship & mid-range)
+        run: flutter build apk --release --target-platform android-arm64
 
-      - name: Upload Debug APK
+      - name: Upload arm64 APK
         uses: actions/upload-artifact@v4
         with:
-          name: marsa-cbt-debug-${{ github.run_number }}
-          path: build/app/outputs/flutter-apk/app-debug.apk
-          retention-days: 30
+          name: marsa-cbt-arm64-${{ github.run_number }}
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 90
 
-      - name: Build Release APK
-        if: github.ref == 'refs/heads/main'
-        run: flutter build apk --release
+      - name: Build APK armeabi-v7a (low-end & jadul)
+        run: flutter build apk --release --target-platform android-arm
 
-      - name: Upload Release APK
-        if: github.ref == 'refs/heads/main'
+      - name: Upload armeabi APK
         uses: actions/upload-artifact@v4
         with:
-          name: marsa-cbt-release-${{ github.run_number }}
+          name: marsa-cbt-arm32-${{ github.run_number }}
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 90
