@@ -42,11 +42,12 @@ class ExamRepository {
   }
 
   Future<double> submitExam(String sessionToken) async {
-    final res = await ApiClient.post(
-      '/participant/session/$sessionToken/submit',
-    );
-    return (res.data['score'] ?? 0).toDouble();
-  }
+  final res = await ApiClient.post(
+    '/participant/session/$sessionToken/submit',
+  );
+
+  return ((res.data as Map<String, dynamic>)['score'] as num?)?.toDouble() ?? 0.0;
+}
 
   Future<void> sendHeartbeat(String sessionToken) async {
     try {
