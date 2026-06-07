@@ -232,33 +232,33 @@ void dispose() {
   }
   
   void _startPenalty() {
-    _penaltyTimer?.cancel();
+  _penaltyTimer?.cancel();
 
-    setState(() => _isPenalty = true);
+  setState(() => _isPenalty = true);
 
-    _penaltyTimer = Timer(
-      const Duration(minutes: 1),
-      () {
-        if (mounted) {
-          setState(() {
-            _isPenalty = false;
-            _failCount = 0;
-          });
-        }
-      },
-    );
-  }
+  _penaltyTimer = Timer(
+    const Duration(minutes: 1),
+    () {
+      if (mounted) {
+        setState(() {
+          _isPenalty = false;
+          _failCount = 0;
+        });
+      }
+    },
+  );
+}
 
-  void _submit(BuildContext context) {
-    final username = _usernameCtrl.text.trim();
-    final password = _passwordCtrl.text;
+void _submit(BuildContext context) {
+  final username = _usernameCtrl.text.trim();
+  final password = _passwordCtrl.text;
 
-    if (username.isEmpty || password.isEmpty) return;
+  if (username.isEmpty || password.isEmpty) return;
 
-    context.read<AuthBloc>().add(
-      AuthLoginRequested(
-        username: username,
-        password: password,
-      ),
-    );
-  }
+  context.read<AuthBloc>().add(
+    AuthLoginRequested(
+      username: username,
+      password: password,
+    ),
+  );
+}
