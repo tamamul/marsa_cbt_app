@@ -78,9 +78,7 @@ class _ExamRoomViewState extends State<_ExamRoomView>
         context.read<ExamBloc>().add(ExamSubmitRequested());
         return;
       }
-      context.read<ExamBloc>().emit(
-        state.copyWith(remainingSeconds: state.remainingSeconds - 1),
-      );
+      context.read<ExamBloc>().add(ExamTicked());
     });
 
     _heartbeatTimer = Timer.periodic(const Duration(seconds: 10), (_) {
@@ -293,9 +291,9 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                               .read<ExamBloc>()
                               .state;
                           if (current is ExamSessionActive) {
-                            context.read<ExamBloc>().emit(
-                              current.copyWith(currentIndex: i),
-                            );
+                           context.read<ExamBloc>().add(
+  ExamQuestionChanged(i),
+);
                           }
                         },
                         child: Container(
@@ -396,12 +394,11 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                                   .read<ExamBloc>()
                                   .state;
                               if (current is ExamSessionActive) {
-                                context.read<ExamBloc>().emit(
-                                  current.copyWith(
-                                    currentIndex:
-                                        current.currentIndex - 1,
-                                  ),
-                                );
+                             context.read<ExamBloc>().add(
+  ExamQuestionChanged(
+    current.currentIndex - 1,
+  ),
+);
                               }
                             },
                             style: OutlinedButton.styleFrom(
@@ -427,12 +424,11 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                                       .read<ExamBloc>()
                                       .state;
                                   if (current is ExamSessionActive) {
-                                    context.read<ExamBloc>().emit(
-                                      current.copyWith(
-                                        currentIndex:
-                                            current.currentIndex + 1,
-                                      ),
-                                    );
+                                  context.read<ExamBloc>().add(
+  ExamQuestionChanged(
+    current.currentIndex + 1,
+  ),
+);
                                   }
                                 },
                                 child: const Text('Selanjutnya →'),
