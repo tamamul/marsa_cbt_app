@@ -34,13 +34,12 @@ class QuestionModel {
   });
 
   factory QuestionModel.fromJson(Map<String, dynamic> json) => QuestionModel(
-    id:        json['id'] as int,
-    content:   json['content'] as String,
-    type:      json['type'] as String,
-    imagePath: json['image_path'] as String?,
-    points:    (json['points'] ?? 1).toDouble(),
-    options:   (json['options'] as List)
-        .map((o) => OptionModel.fromJson(o as Map<String, dynamic>))
-        .toList(),
-  );
-}
+  id: json['id'] as int,
+  content: json['content'] as String,
+  type: json['type'] as String,
+  imagePath: json['image_path'] as String?,
+  points: (json['points'] as num?)?.toDouble() ?? 1.0,
+  options: (json['options'] as List)
+      .map((o) => OptionModel.fromJson(o as Map<String, dynamic>))
+      .toList(),
+);}}
