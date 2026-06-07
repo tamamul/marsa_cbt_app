@@ -262,14 +262,3 @@ void dispose() {
       ),
     );
   }
-
-  void _submit(BuildContext context) {
-    final username = _usernameCtrl.text.trim();
-    final password = _passwordCtrl.text;
-    if (username.isEmpty || password.isEmpty) return;
-    context.read<AuthBloc>().add(
-      AuthLoginRequested(username: username, password: password),
-    );
-  }
-}
-
