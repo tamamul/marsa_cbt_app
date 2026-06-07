@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../repository/auth_repository.dart';
 import '../../../core/theme/app_theme.dart';
+import 'dart:async';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,13 +17,17 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _obscure = true;
+  int _failCount = 0;
+bool _isPenalty = false;
+Timer? _penaltyTimer;
 
   @override
-  void dispose() {
-    _usernameCtrl.dispose();
-    _passwordCtrl.dispose();
-    super.dispose();
-  }
+void dispose() {
+  _usernameCtrl.dispose();
+  _passwordCtrl.dispose();
+  _penaltyTimer?.cancel();
+  super.dispose();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +35,16 @@ class _LoginScreenState extends State<LoginScreen> {
       create: (_) => AuthBloc(AuthRepository()),
       child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthSuccess) {
-            context.go('/exams');
-          }
-        },
+  if (state is AuthSuccess) {
+    context.go('/exams');
+  }
+  if (state is AuthFailure) {
+    setState(() => _failCount++);
+    if (_failCount >= 1) {
+      _startPenalty();
+    }
+  }
+},
         builder: (context, state) {
           return Scaffold(
             backgroundColor: AppTheme.background,
@@ -167,29 +178,37 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     // Button
                     SizedBox(
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: state is AuthLoading
-                            ? null
-                            : () => _submit(context),
-                        child: state is AuthLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text(
-                                'MASUK',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                      ),
-                    ),
+  height: 50,
+  child: ElevatedButton(
+    onPressed: (state is AuthLoading || _isPenalty)
+        ? null
+        : () => _submit(context),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: _isPenalty ? AppTheme.danger : AppTheme.primary,
+    ),
+    child: state is AuthLoading
+        ? const SizedBox(
+            width: 20, height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2, color: Colors.white),
+          )
+        : _isPenalty
+            ? const Text(
+                'TUNGGU 1 MENIT...',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1,
+                ),
+              )
+            : const Text(
+                'MASUK',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 2,
+                ),
+              ),
+  ),
+),
 
                     const SizedBox(height: 24),
 
@@ -211,6 +230,38 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  
+  void _startPenalty() {
+    _penaltyTimer?.cancel();
+
+    setState(() => _isPenalty = true);
+
+    _penaltyTimer = Timer(
+      const Duration(minutes: 1),
+      () {
+        if (mounted) {
+          setState(() {
+            _isPenalty = false;
+            _failCount = 0;
+          });
+        }
+      },
+    );
+  }
+
+  void _submit(BuildContext context) {
+    final username = _usernameCtrl.text.trim();
+    final password = _passwordCtrl.text;
+
+    if (username.isEmpty || password.isEmpty) return;
+
+    context.read<AuthBloc>().add(
+      AuthLoginRequested(
+        username: username,
+        password: password,
+      ),
+    );
+  }
 
   void _submit(BuildContext context) {
     final username = _usernameCtrl.text.trim();
@@ -221,3 +272,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
