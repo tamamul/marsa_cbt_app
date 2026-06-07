@@ -7,6 +7,8 @@ import '../bloc/exam_bloc.dart';
 import '../models/question_model.dart';
 import '../repository/exam_repository.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/security/exam_security.dart';
+
 
 class ExamRoomScreen extends StatelessWidget {
   final int    examId;
@@ -44,27 +46,32 @@ class _ExamRoomViewState extends State<_ExamRoomView>
   Timer? _heartbeatTimer;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addObserver(this);
+  ExamSecurity.enable(); // aktifkan semua proteksi
+}
+
+  @override
+void dispose() {
+  _countdownTimer?.cancel();
+  _heartbeatTimer?.cancel();
+  WidgetsBinding.instance.removeObserver(this);
+  ExamSecurity.disable(); // nonaktifkan setelah selesai
+  super.dispose();
+}
+
+  @override
+void didChangeAppLifecycleState(AppLifecycleState state) {
+  if (state == AppLifecycleState.paused ||
+      state == AppLifecycleState.inactive) {
+    // Catat pelanggaran
+    context.read<ExamBloc>().add(ExamViolationReported('app_switch'));
+
+    // Paksa kembali ke foreground via re-enable immersive
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
-
-  @override
-  void dispose() {
-    _countdownTimer?.cancel();
-    _heartbeatTimer?.cancel();
-    WidgetsBinding.instance.removeObserver(this);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      context.read<ExamBloc>().add(ExamViolationReported('app_switch'));
-    }
-  }
+}
 
   void _startTimers() {
     _countdownTimer?.cancel();
