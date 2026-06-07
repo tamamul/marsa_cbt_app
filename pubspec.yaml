@@ -12,6 +12,7 @@ dependencies:
 
   flutter_bloc: ^9.1.1
   equatable: ^2.0.5
+  wakelock_plus: ^1.2.8
 
   # Navigation
   go_router: ^15.1.1
