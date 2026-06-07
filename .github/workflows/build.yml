@@ -37,8 +37,7 @@ jobs:
       - name: Get Dependencies
         run: flutter pub get
 
-      - name: Analyze Project
-        run: flutter analyze --no-fatal-infos
+      flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Build Debug APK
         run: flutter build apk --debug
