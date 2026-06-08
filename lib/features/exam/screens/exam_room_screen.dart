@@ -9,7 +9,6 @@ import '../repository/exam_repository.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/security/exam_security.dart';
 
-
 class ExamRoomScreen extends StatelessWidget {
   final int    examId;
   final String examTitle;
@@ -45,46 +44,34 @@ class _ExamRoomViewState extends State<_ExamRoomView>
   Timer? _countdownTimer;
   Timer? _heartbeatTimer;
 
-  bool _securityEnabled = false;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
     ExamSecurity.onViolationDetected = (type) {
-      if (!mounted) return;
-      context.read<ExamBloc>().add(ExamViolationReported(type));
+      if (mounted) {
+        context.read<ExamBloc>().add(ExamViolationReported(type));
+      }
     };
 
-    _enableSecurity();
-  }
-
-  Future<void> _enableSecurity() async {
-    if (_securityEnabled) return;
-    _securityEnabled = true;
-    await ExamSecurity.enable();
+    ExamSecurity.enable();
   }
 
   @override
   void dispose() {
     _countdownTimer?.cancel();
     _heartbeatTimer?.cancel();
-
     ExamSecurity.onViolationDetected = null;
     WidgetsBinding.instance.removeObserver(this);
-
     ExamSecurity.disable();
-
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.inactive) {
-      SystemChrome.setEnabledSystemUIMode(
-        SystemUiMode.immersiveSticky,
-      );
+    if (state == AppLifecycleState.paused) {
+      context.read<ExamBloc>().add(ExamViolationReported('app_switch'));
     }
   }
 
@@ -92,34 +79,21 @@ class _ExamRoomViewState extends State<_ExamRoomView>
     _countdownTimer?.cancel();
     _heartbeatTimer?.cancel();
 
-    _countdownTimer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) {
-        final state = context.read<ExamBloc>().state;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      final state = context.read<ExamBloc>().state;
+      if (state is! ExamSessionActive) return;
+      if (state.remainingSeconds <= 0) {
+        _countdownTimer?.cancel();
+        context.read<ExamBloc>().add(ExamSubmitRequested());
+        return;
+      }
+      context.read<ExamBloc>().add(ExamTicked());
+    });
 
-        if (state is! ExamSessionActive) return;
-
-        if (state.remainingSeconds <= 0) {
-          _countdownTimer?.cancel();
-          context.read<ExamBloc>().add(ExamSubmitRequested());
-          return;
-        }
-
-        context.read<ExamBloc>().add(ExamTicked());
-      },
-    );
-
-    _heartbeatTimer = Timer.periodic(
-      const Duration(seconds: 10),
-      (_) {
-        final state = context.read<ExamBloc>().state;
-        if (state is! ExamSessionActive) return;
-
-        context.read<ExamBloc>().add(ExamHeartbeatSent());
-      },
-    );
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      context.read<ExamBloc>().add(ExamHeartbeatSent());
+    });
   }
-}
 
   void _confirmSubmit(BuildContext context, ExamSessionActive state) {
     final unanswered = state.session.questions.length - state.answers.length;
@@ -128,10 +102,8 @@ class _ExamRoomViewState extends State<_ExamRoomView>
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surface,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Text(
-          'Submit Ujian?',
-          style: TextStyle(color: AppTheme.textPrimary),
-        ),
+        title: Text('Submit Ujian?',
+            style: TextStyle(color: AppTheme.textPrimary)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,19 +124,15 @@ class _ExamRoomViewState extends State<_ExamRoomView>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              'Batal',
-              style: TextStyle(color: AppTheme.textSecondary),
-            ),
+            child: Text('Batal',
+                style: TextStyle(color: AppTheme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
               context.read<ExamBloc>().add(ExamSubmitRequested());
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.success,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
             child: const Text('Submit'),
           ),
         ],
@@ -184,22 +152,16 @@ class _ExamRoomViewState extends State<_ExamRoomView>
       canPop: false,
       child: BlocConsumer<ExamBloc, ExamState>(
         listener: (context, state) {
-          if (state is ExamSessionActive &&
-              _countdownTimer == null) {
+          if (state is ExamSessionActive && _countdownTimer == null) {
             _startTimers();
           }
           if (state is ExamSubmitted) {
             _countdownTimer?.cancel();
             _heartbeatTimer?.cancel();
-          }
-          if (state is ExamSubmitted) {
             context.go('/result', extra: {
-              'score':          state.score,
-              'passingScore':   75.0,
-              'totalAnswered':  0,
-              'totalQuestions': 0,
+              'totalAnswered':  state.totalAnswered,
+              'totalQuestions': state.totalQuestions,
               'examTitle':      widget.examTitle,
-              'auto':           false,
             });
           }
         },
@@ -213,10 +175,8 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                   children: [
                     const CircularProgressIndicator(),
                     const SizedBox(height: 16),
-                    Text(
-                      'Memuat soal...',
-                      style: TextStyle(color: AppTheme.textSecondary),
-                    ),
+                    Text('Memuat soal...',
+                        style: TextStyle(color: AppTheme.textSecondary)),
                   ],
                 ),
               ),
@@ -235,12 +195,10 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                       Icon(Icons.error_outline,
                           color: AppTheme.danger, size: 48),
                       const SizedBox(height: 16),
-                      Text(
-                        state.message,
-                        textAlign: TextAlign.center,
-                        style:
-                            TextStyle(color: AppTheme.textSecondary),
-                      ),
+                      Text(state.message,
+                          textAlign: TextAlign.center,
+                          style:
+                              TextStyle(color: AppTheme.textSecondary)),
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () => context.go('/exams'),
@@ -259,86 +217,73 @@ class _ExamRoomViewState extends State<_ExamRoomView>
             );
           }
 
-          final questions    = state.session.questions;
-          final question     = questions[state.currentIndex];
-          final isWarning    = state.remainingSeconds < 300;
+          final questions = state.session.questions;
+          final question  = questions[state.currentIndex];
+          final isWarning = state.remainingSeconds < 300;
 
           return Scaffold(
             backgroundColor: AppTheme.background,
-          appBar: AppBar(
-  automaticallyImplyLeading: false,
-  title: Text(
-    widget.examTitle,
-    style: const TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
-    ),
-  ),
-  actions: [
-    if (state is ExamSessionActive)
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        child: state.isSaving
-            ? Row(
-                children: [
-                  const SizedBox(
-                    width: 12,
-                    height: 12,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1.5,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Menyimpan...',
-                    style: TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 10,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              )
-            : Row(
-                children: [
-                  const Icon(
-                    Icons.check_circle,
-                    color: AppTheme.success,
-                    size: 14,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Tersimpan',
-                    style: TextStyle(
-                      color: AppTheme.success,
-                      fontSize: 10,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              title: Text(
+                widget.examTitle,
+                style: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w600),
               ),
-      ),
+              actions: [
+                // Indikator autosave
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  child: state.isSaving
+                      ? Row(
+                          children: [
+                            SizedBox(
+                              width: 12, height: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text('Menyimpan...',
+                                style: TextStyle(
+                                    color: AppTheme.textSecondary,
+                                    fontSize: 10)),
+                            const SizedBox(width: 8),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Icon(Icons.check_circle,
+                                color: AppTheme.success, size: 14),
+                            const SizedBox(width: 4),
+                            Text('Tersimpan',
+                                style: TextStyle(
+                                    color: AppTheme.success,
+                                    fontSize: 10)),
+                            const SizedBox(width: 8),
+                          ],
+                        ),
+                ),
 
-    Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 6,
-      ),
-      color: isWarning ? AppTheme.danger : AppTheme.primary,
-      child: Text(
-        _formatTime(state.remainingSeconds),
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w700,
-          fontFamily: 'monospace',
-          fontSize: 15,
-        ),
-      ),
-    ),
-  ],
-),
+                // Timer
+                Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 6),
+                  color: isWarning ? AppTheme.danger : AppTheme.primary,
+                  child: Text(
+                    _formatTime(state.remainingSeconds),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'monospace',
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             body: Column(
               children: [
                 // Progress bar
@@ -356,29 +301,18 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 8,
-                    ),
+                        horizontal: 8, vertical: 8),
                     itemCount: questions.length,
                     itemBuilder: (_, i) {
-                      final isActive =
-                          i == state.currentIndex;
+                      final isActive   = i == state.currentIndex;
                       final isAnswered =
                           state.answers.containsKey(questions[i].id);
                       return GestureDetector(
-                        onTap: () {
-                          final current = context
-                              .read<ExamBloc>()
-                              .state;
-                          if (current is ExamSessionActive) {
-                           context.read<ExamBloc>().add(
-  ExamQuestionChanged(i),
-);
-                          }
-                        },
+                        onTap: () => context
+                            .read<ExamBloc>()
+                            .add(ExamQuestionChanged(i)),
                         child: Container(
-                          width: 32,
-                          height: 32,
+                          width: 32, height: 32,
                           margin: const EdgeInsets.only(right: 4),
                           color: isActive
                               ? AppTheme.primary
@@ -414,9 +348,7 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
+                                  horizontal: 10, vertical: 4),
                               color: AppTheme.primary,
                               child: Text(
                                 'Soal ${state.currentIndex + 1}',
@@ -431,9 +363,8 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                             Text(
                               '${question.points.toInt()} poin',
                               style: TextStyle(
-                                color: AppTheme.textSecondary,
-                                fontSize: 11,
-                              ),
+                                  color: AppTheme.textSecondary,
+                                  fontSize: 11),
                             ),
                           ],
                         ),
@@ -448,12 +379,7 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                         ),
                         const SizedBox(height: 24),
                         ...question.options.map(
-                          (opt) => _buildOption(
-                            context,
-                            question,
-                            opt,
-                            state,
-                          ),
+                          (opt) => _buildOption(context, question, opt, state),
                         ),
                       ],
                     ),
@@ -469,27 +395,17 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                       if (state.currentIndex > 0) ...[
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () {
-                              final current = context
-                                  .read<ExamBloc>()
-                                  .state;
-                              if (current is ExamSessionActive) {
-                             context.read<ExamBloc>().add(
-  ExamQuestionChanged(
-    current.currentIndex - 1,
-  ),
-);
-                              }
-                            },
+                            onPressed: () => context
+                                .read<ExamBloc>()
+                                .add(ExamQuestionChanged(
+                                    state.currentIndex - 1)),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppTheme.textSecondary,
                               side: BorderSide(color: AppTheme.border),
                               shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero,
-                              ),
+                                  borderRadius: BorderRadius.zero),
                               padding: const EdgeInsets.symmetric(
-                                vertical: 14,
-                              ),
+                                  vertical: 14),
                             ),
                             child: const Text('← Sebelumnya'),
                           ),
@@ -499,18 +415,10 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                       Expanded(
                         child: state.currentIndex < questions.length - 1
                             ? ElevatedButton(
-                                onPressed: () {
-                                  final current = context
-                                      .read<ExamBloc>()
-                                      .state;
-                                  if (current is ExamSessionActive) {
-                                  context.read<ExamBloc>().add(
-  ExamQuestionChanged(
-    current.currentIndex + 1,
-  ),
-);
-                                  }
-                                },
+                                onPressed: () => context
+                                    .read<ExamBloc>()
+                                    .add(ExamQuestionChanged(
+                                        state.currentIndex + 1)),
                                 child: const Text('Selanjutnya →'),
                               )
                             : ElevatedButton(
@@ -519,14 +427,12 @@ class _ExamRoomViewState extends State<_ExamRoomView>
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.success,
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 14,
-                                  ),
+                                      vertical: 14),
                                 ),
                                 child: const Text(
                                   'SUBMIT UJIAN ✓',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                      fontWeight: FontWeight.w700),
                                 ),
                               ),
                       ),
@@ -550,11 +456,11 @@ class _ExamRoomViewState extends State<_ExamRoomView>
     final isSelected = state.answers[question.id] == opt.id;
     return GestureDetector(
       onTap: () => context.read<ExamBloc>().add(
-        ExamAnswerSaved(
-          questionId:       question.id,
-          selectedOptionId: opt.id,
-        ),
-      ),
+            ExamAnswerSaved(
+              questionId:       question.id,
+              selectedOptionId: opt.id,
+            ),
+          ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(14),
@@ -570,16 +476,13 @@ class _ExamRoomViewState extends State<_ExamRoomView>
         child: Row(
           children: [
             Container(
-              width: 28,
-              height: 28,
+              width: 28, height: 28,
               color: isSelected ? AppTheme.primary : AppTheme.border,
               child: Center(
                 child: Text(
                   opt.label,
                   style: TextStyle(
-                    color: isSelected
-                        ? Colors.white
-                        : AppTheme.textSecondary,
+                    color: isSelected ? Colors.white : AppTheme.textSecondary,
                     fontWeight: FontWeight.w700,
                     fontSize: 12,
                   ),
