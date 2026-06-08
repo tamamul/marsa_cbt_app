@@ -10,14 +10,23 @@ import '../storage/secure_storage.dart';
 class AppRouter {
   static final router = GoRouter(
     initialLocation: '/',
+    errorBuilder: (context, state) => Scaffold(
+      backgroundColor: const Color(0xFF0F172A),
+      body: Center(
+        child: Text(
+          'Halaman tidak ditemukan.',
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+    ),
     redirect: (context, state) async {
-      final isLoggedIn  = await SecureStorage.isLoggedIn();
+      final isLoggedIn = await SecureStorage.isLoggedIn();
       final isAuthRoute = state.matchedLocation == '/login';
-      final isSplash    = state.matchedLocation == '/';
+      final isSplash = state.matchedLocation == '/';
 
       if (isSplash) return null;
       if (!isLoggedIn && !isAuthRoute) return '/login';
-      if (isLoggedIn && isAuthRoute)  return '/exams';
+      if (isLoggedIn && isAuthRoute) return '/exams';
       return null;
     },
     routes: [
@@ -38,32 +47,24 @@ class AppRouter {
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>;
           return ExamRoomScreen(
-            examId:    args['examId'] as int,
+            examId: args['examId'] as int,
             examTitle: args['examTitle'] as String,
-            token:     args['token'] as String,
+            token: args['token'] as String,
           );
         },
       ),
       GoRoute(
-  path: '/result',
-  builder: (context, state) {
-    final args = state.extra as Map<String, dynamic>;
-    return ResultScreen(
-      totalAnswered:  args['totalAnswered'] as int,
-      totalQuestions: args['totalQuestions'] as int,
-      examTitle:      args['examTitle'] as String,
-      auto:           args['auto'] as bool? ?? false,
-    );
-  },
-),
-    errorBuilder: (context, state) => Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
-      body: Center(
-        child: Text(
-          'Halaman tidak ditemukan.',
-          style: const TextStyle(color: Colors.white),
-        ),
+        path: '/result',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>;
+          return ResultScreen(
+            totalAnswered: args['totalAnswered'] as int,
+            totalQuestions: args['totalQuestions'] as int,
+            examTitle: args['examTitle'] as String,
+            auto: args['auto'] as bool? ?? false,
+          );
+        },
       ),
-    ),
+    ],
   );
 }
