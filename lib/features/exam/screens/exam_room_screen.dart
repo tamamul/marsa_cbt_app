@@ -45,65 +45,83 @@ class _ExamRoomViewState extends State<_ExamRoomView>
   Timer? _countdownTimer;
   Timer? _heartbeatTimer;
 
+  bool _securityEnabled = false;
+
   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addObserver(this);
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
-  // Set callback native violation
-  ExamSecurity.onViolationDetected = (type) {
-    if (mounted) {
+    ExamSecurity.onViolationDetected = (type) {
+      if (!mounted) return;
       context.read<ExamBloc>().add(ExamViolationReported(type));
+    };
+
+    _enableSecurity();
+  }
+
+  Future<void> _enableSecurity() async {
+    if (_securityEnabled) return;
+    _securityEnabled = true;
+
+    await ExamSecurity.enable();
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    _heartbeatTimer?.cancel();
+
+    ExamSecurity.onViolationDetected = null;
+    WidgetsBinding.instance.removeObserver(this);
+
+    ExamSecurity.disable();
+
+    super.dispose();
+  }
+
+  // ⚠️ HAPUS LOGIC PAUSED DETECTOR LAMA
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // hanya fallback ringan kalau native gagal
+    if (state == AppLifecycleState.inactive) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.immersiveSticky,
+      );
     }
-  };
-
-  ExamSecurity.enable();
-}
-
-@override
-void dispose() {
-  _countdownTimer?.cancel();
-  _heartbeatTimer?.cancel();
-  ExamSecurity.onViolationDetected = null;
-  WidgetsBinding.instance.removeObserver(this);
-  ExamSecurity.disable();
-  super.dispose();
-}
-
-// Hapus didChangeAppLifecycleState karena sudah handle di native
-// Tapi tetap keep untuk fallback Android lama
-@override
-void didChangeAppLifecycleState(AppLifecycleState state) {
-  if (state == AppLifecycleState.paused) {
-    context.read<ExamBloc>().add(ExamViolationReported('app_switch'));
   }
-}
-
-  
-    // Paksa kembali ke foreground via re-enable immersive
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  }
-}
 
   void _startTimers() {
     _countdownTimer?.cancel();
     _heartbeatTimer?.cancel();
 
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      final state = context.read<ExamBloc>().state;
-      if (state is! ExamSessionActive) return;
-      if (state.remainingSeconds <= 0) {
-        _countdownTimer?.cancel();
-        context.read<ExamBloc>().add(ExamSubmitRequested());
-        return;
-      }
-      context.read<ExamBloc>().add(ExamTicked());
-    });
+    _countdownTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) {
+        final state = context.read<ExamBloc>().state;
+        if (state is! ExamSessionActive) return;
 
-    _heartbeatTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      context.read<ExamBloc>().add(ExamHeartbeatSent());
-    });
+        if (state.remainingSeconds <= 0) {
+          _countdownTimer?.cancel();
+          context.read<ExamBloc>().add(ExamSubmitRequested());
+          return;
+        }
+
+        context.read<ExamBloc>().add(ExamTicked());
+      },
+    );
+
+    _heartbeatTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (_) {
+        final state = context.read<ExamBloc>().state;
+        if (state is! ExamSessionActive) return;
+
+        context.read<ExamBloc>().add(ExamHeartbeatSent());
+      },
+    );
   }
+}
 
   void _confirmSubmit(BuildContext context, ExamSessionActive state) {
     final unanswered = state.session.questions.length - state.answers.length;
