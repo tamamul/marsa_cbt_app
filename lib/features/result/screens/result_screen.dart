@@ -136,29 +136,26 @@ Container(
 
                 const SizedBox(height: 8),
 
-                // Stats row
-                if (totalQuestions > 0)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _statCard(
-                          'Terjawab',
-                          '$totalAnswered/$totalQuestions',
-                          AppTheme.success,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _statCard(
-                          'Tidak Dijawab',
-                          '$unanswered',
-                          unanswered > 0
-                              ? AppTheme.warning
-                              : AppTheme.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
+                Container(
+  width: double.infinity,
+  padding: const EdgeInsets.all(16),
+  color: AppTheme.surface,
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Icon(Icons.quiz_outlined,
+        color: AppTheme.textSecondary, size: 16),
+      const SizedBox(width: 8),
+      Text(
+        'Terjawab: $totalAnswered dari $totalQuestions soal',
+        style: TextStyle(
+          color: AppTheme.textSecondary,
+          fontSize: 13,
+        ),
+      ),
+    ],
+  ),
+),
 
                 const Spacer(),
 
