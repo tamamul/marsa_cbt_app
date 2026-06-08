@@ -92,43 +92,47 @@ class ResultScreen extends StatelessWidget {
                 const SizedBox(height: 32),
 
                 // Score card
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  color: AppTheme.surface,
-                  child: Column(
-                    children: [
-                      Text(
-                        'NILAI',
-                        style: TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 10,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        score.toStringAsFixed(0),
-                        style: TextStyle(
-                          color: passed
-                              ? AppTheme.success
-                              : AppTheme.danger,
-                          fontSize: 72,
-                          fontWeight: FontWeight.w800,
-                          height: 1,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'KKM: ${passingScore.toInt()}',
-                        style: TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+Container(
+  width: double.infinity,
+  padding: const EdgeInsets.all(24),
+  color: AppTheme.surface,
+  child: Column(
+    children: [
+      Text(
+        'UJIAN SELESAI',
+        style: TextStyle(
+          color: AppTheme.textSecondary,
+          fontSize: 10,
+          letterSpacing: 2,
+        ),
+      ),
+      const SizedBox(height: 16),
+      Icon(
+        Icons.task_alt,
+        color: AppTheme.success,
+        size: 56,
+      ),
+      const SizedBox(height: 12),
+      Text(
+        'Jawaban kamu telah berhasil\ndikirim ke server.',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: AppTheme.textPrimary,
+          fontSize: 15,
+          height: 1.5,
+        ),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        'Nilai akan diumumkan oleh guru.',
+        style: TextStyle(
+          color: AppTheme.textSecondary,
+          fontSize: 12,
+        ),
+      ),
+    ],
+  ),
+),
 
                 const SizedBox(height: 8),
 
