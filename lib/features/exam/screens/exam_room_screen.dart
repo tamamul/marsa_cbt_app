@@ -63,7 +63,6 @@ class _ExamRoomViewState extends State<_ExamRoomView>
   Future<void> _enableSecurity() async {
     if (_securityEnabled) return;
     _securityEnabled = true;
-
     await ExamSecurity.enable();
   }
 
@@ -80,10 +79,8 @@ class _ExamRoomViewState extends State<_ExamRoomView>
     super.dispose();
   }
 
-  // ⚠️ HAPUS LOGIC PAUSED DETECTOR LAMA
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // hanya fallback ringan kalau native gagal
     if (state == AppLifecycleState.inactive) {
       SystemChrome.setEnabledSystemUIMode(
         SystemUiMode.immersiveSticky,
@@ -99,6 +96,7 @@ class _ExamRoomViewState extends State<_ExamRoomView>
       const Duration(seconds: 1),
       (_) {
         final state = context.read<ExamBloc>().state;
+
         if (state is! ExamSessionActive) return;
 
         if (state.remainingSeconds <= 0) {
