@@ -49,25 +49,37 @@ class _ExamRoomViewState extends State<_ExamRoomView>
 void initState() {
   super.initState();
   WidgetsBinding.instance.addObserver(this);
-  ExamSecurity.enable(); // aktifkan semua proteksi
+
+  // Set callback native violation
+  ExamSecurity.onViolationDetected = (type) {
+    if (mounted) {
+      context.read<ExamBloc>().add(ExamViolationReported(type));
+    }
+  };
+
+  ExamSecurity.enable();
 }
 
-  @override
+@override
 void dispose() {
   _countdownTimer?.cancel();
   _heartbeatTimer?.cancel();
+  ExamSecurity.onViolationDetected = null;
   WidgetsBinding.instance.removeObserver(this);
-  ExamSecurity.disable(); // nonaktifkan setelah selesai
+  ExamSecurity.disable();
   super.dispose();
 }
 
-  @override
+// Hapus didChangeAppLifecycleState karena sudah handle di native
+// Tapi tetap keep untuk fallback Android lama
+@override
 void didChangeAppLifecycleState(AppLifecycleState state) {
-  if (state == AppLifecycleState.paused ||
-      state == AppLifecycleState.inactive) {
-    // Catat pelanggaran
+  if (state == AppLifecycleState.paused) {
     context.read<ExamBloc>().add(ExamViolationReported('app_switch'));
+  }
+}
 
+  
     // Paksa kembali ke foreground via re-enable immersive
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
