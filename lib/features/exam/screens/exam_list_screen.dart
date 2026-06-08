@@ -75,7 +75,7 @@ class _ExamListViewState extends State<_ExamListView> {
                 fontWeight: FontWeight.bold,
               ),
               textCapitalization: TextCapitalization.characters,
-              maxLength: 6,
+              maxLength: 8,
               decoration: const InputDecoration(
                 hintText: 'XXXXXX',
                 counterText: '',
