@@ -45,20 +45,17 @@ class AppRouter {
         },
       ),
       GoRoute(
-        path: '/result',
-        builder: (context, state) {
-          final args = state.extra as Map<String, dynamic>;
-          return ResultScreen(
-            score:          args['score'] as double,
-            passingScore:   args['passingScore'] as double,
-            totalAnswered:  args['totalAnswered'] as int,
-            totalQuestions: args['totalQuestions'] as int,
-            examTitle:      args['examTitle'] as String,
-            auto:           args['auto'] as bool? ?? false,
-          );
-        },
-      ),
-    ],
+  path: '/result',
+  builder: (context, state) {
+    final args = state.extra as Map<String, dynamic>;
+    return ResultScreen(
+      totalAnswered:  args['totalAnswered'] as int,
+      totalQuestions: args['totalQuestions'] as int,
+      examTitle:      args['examTitle'] as String,
+      auto:           args['auto'] as bool? ?? false,
+    );
+  },
+),
     errorBuilder: (context, state) => Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       body: Center(
