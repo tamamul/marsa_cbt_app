@@ -249,35 +249,80 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
 
           return Scaffold(
             backgroundColor: AppTheme.background,
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: Text(
-                widget.examTitle,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              actions: [
-                Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  color: isWarning ? AppTheme.danger : AppTheme.primary,
-                  child: Text(
-                    _formatTime(state.remainingSeconds),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'monospace',
-                      fontSize: 15,
+          appBar: AppBar(
+  automaticallyImplyLeading: false,
+  title: Text(
+    widget.examTitle,
+    style: const TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+  actions: [
+    if (state is ExamSessionActive)
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: state.isSaving
+            ? Row(
+                children: [
+                  const SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.5,
+                      color: AppTheme.textSecondary,
                     ),
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Menyimpan...',
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 10,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              )
+            : Row(
+                children: [
+                  const Icon(
+                    Icons.check_circle,
+                    color: AppTheme.success,
+                    size: 14,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Tersimpan',
+                    style: TextStyle(
+                      color: AppTheme.success,
+                      fontSize: 10,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ),
+      ),
+
+    Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 6,
+      ),
+      color: isWarning ? AppTheme.danger : AppTheme.primary,
+      child: Text(
+        _formatTime(state.remainingSeconds),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'monospace',
+          fontSize: 15,
+        ),
+      ),
+    ),
+  ],
+),
             body: Column(
               children: [
                 // Progress bar
